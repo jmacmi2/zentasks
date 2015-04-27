@@ -1,6 +1,8 @@
 package models;
 
+import com.avaje.ebean.Ebean;
 import org.junit.*;
+import play.libs.Yaml;
 
 import java.util.List;
 
@@ -73,6 +75,18 @@ public class ModelsTest {
             assertNotNull(results);
             assertEquals(1, results.size());
             assertEquals("Release next version", results.get(0).title);
+        });
+    }
+
+    @Test
+    public void testUsingFixtures(){
+        running(fakeApplication(inMemoryDatabase("test")), () -> {
+            Ebean.save((List) Yaml.load("test-data.yml"));
+
+            User bob = User.find.ref("bob@gmail.com");
+            assertNotNull(bob);
+            assertEquals("Bob", bob.name);
+            assertEquals("secret", bob.password);
         });
 
     }
