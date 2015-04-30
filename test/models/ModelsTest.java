@@ -91,4 +91,24 @@ public class ModelsTest {
 
     }
 
+    @Test
+    public void fullTestUsingFixtures(){
+        running(fakeApplication(inMemoryDatabase("test")), () -> {
+            Ebean.save((List) Yaml.load("test-data.yml"));
+
+            assertEquals(5, User.find.findRowCount());
+            assertEquals(11, Project.find.findRowCount());
+            assertEquals(6, Task.find.findRowCount());
+
+            assertNotNull(User.authenticate("bob@gmail.com", "secret"));
+            assertNotNull(User.authenticate("erwan@sample.com", "secret"));
+            assertNull(User.authenticate("bob@gmail.com", "badpassword"));
+            assertNull(User.authenticate("nobody@nowhere.com", "secret"));
+
+            assertEquals(7, Project.findInvolving("guillaume@sample.com").size());
+            assertEquals(4, Task.findTodoInvolving("guillaume@sample.com").size());
+        });
+
+    }
+
 }
