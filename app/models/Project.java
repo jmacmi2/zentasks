@@ -10,6 +10,7 @@ import java.util.*;
 @Entity
 public class Project extends Model {
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     public Long id;
 
     public String name;
@@ -39,4 +40,18 @@ public class Project extends Model {
                 .findList();
     }
 
+    public static boolean isMember(Long project, String username) {
+        return find.where()
+                .eq("members.email", username)
+                .eq("id", project)
+                .findRowCount() > 0;
+    }
+
+    public static String rename(long projectId, String newName){
+        Project project = find.byId(projectId);
+        project.name = newName;
+        project.update();
+
+        return newName;
+    }
 }
