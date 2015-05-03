@@ -11,6 +11,7 @@ import play.db.ebean.*;
 @Entity
 public class Task extends Model {
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     public Long id;
 
     public String title;
