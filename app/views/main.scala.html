@@ -1,4 +1,4 @@
-@(projects: List[Project])(body: Html)
+@(projects: List[Project], user: User)(body: Html)
 
 <!DOCTYPE html>
 
@@ -14,6 +14,12 @@
             <a href="@routes.Application.index" id="logo">
                 <span>Zen</span>tasks
             </a>
+            <dl id="user">
+                <dt>@user.name <span>(@user.email)</span></dt>
+                <dd>
+                    <a href="@routes.Application.logout()">Logout</a>
+                </dd>
+            </dl>
         </header>
         <nav>
             <h4 class="dashboard">
