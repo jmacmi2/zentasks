@@ -46,10 +46,25 @@ public class Application extends Controller {
         }
     }
 
+    public static Result javascriptRoutes(){
+        response().setContentType("text/javascript");
+        return ok(
+                Routes.javascriptRouter(
+                        "jsRoutes",
+                        controllers.routes.javascript.Projects.add(),
+                        controllers.routes.javascript.Projects.delete(),
+                        controllers.routes.javascript.Projects.rename(),
+                        controllers.routes.javascript.Projects.addGroup()
+
+                        )
+        );
+
+    }
+
     public static class Login{
         public String email;
-        public String password;
 
+        public String password;
         public String validate(){
             if(User.authenticate(email, password) == null){
                 return "Invalid user or password";

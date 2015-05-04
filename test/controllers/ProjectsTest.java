@@ -79,4 +79,46 @@ public class ProjectsTest {
         });
     }
 
+    @Test
+    public void deleteProject() {
+        running(fakeApplication(inMemoryDatabase(), fakeGlobal()), () -> {
+            Ebean.save((List) Yaml.load("test-data.yml"));
+
+            long id = Project.find.where()
+                    .eq("members.email", "bob@gmail.com")
+                    .eq("name", "Private")
+                    .findUnique().id;
+
+            Result result = callAction(
+                    controllers.routes.ref.Projects.delete(id),
+                    fakeRequest()
+                            .withSession("email", "bob@gmail.com")
+            );
+            assertEquals(200, status(result));
+            assertNull(Project.find.byId(id));
+        });
+    }
+
+    @Test
+    public void deleteProjectForbidden() {
+        running(fakeApplication(inMemoryDatabase(), fakeGlobal()), () -> {
+            Ebean.save((List) Yaml.load("test-data.yml"));
+
+            long id = Project.find.where()
+                    .eq("members.email", "bob@gmail.com")
+                    .eq("name", "Private")
+                    .findUnique().id;
+
+            Result result = callAction(
+                    controllers.routes.ref.Projects.delete(id),
+                    fakeRequest()
+                            .withSession("email", "notbob@nowhere.com")
+            );
+            assertEquals(403, status(result));
+            assertNotNull(Project.find.byId(id));
+        });
+    }
+
+    //Todo: Test Groups when you know what the hell they're doing.
+
 }
