@@ -35,7 +35,48 @@ public class ProjectsTest {
             assertEquals(1, project.members.size());
             assertEquals("bob@gmail.com", project.members.get(0).email);
         });
+    }
 
+    @Test
+    public void renameProject() {
+        running(fakeApplication(inMemoryDatabase(), fakeGlobal()), () -> {
+            Ebean.save((List) Yaml.load("test-data.yml"));
+
+            long id = Project.find.where()
+                    .eq("members.email", "bob@gmail.com")
+                    .eq("name", "Private")
+                    .findUnique().id;
+
+            Result result = callAction(
+                    controllers.routes.ref.Projects.rename(id),
+                    fakeRequest()
+                            .withSession("email", "bob@gmail.com")
+                            .withFormUrlEncodedBody(ImmutableMap.of("name", "New Name"))
+            );
+            assertEquals(200, status(result));
+            assertEquals("New Name", Project.find.byId(id).name);
+        });
+    }
+
+    @Test
+    public void renameProjectForbidden() {
+        running(fakeApplication(inMemoryDatabase(), fakeGlobal()), () -> {
+            Ebean.save((List) Yaml.load("test-data.yml"));
+
+            long id = Project.find.where()
+                    .eq("members.email", "bob@gmail.com")
+                    .eq("name", "Private")
+                    .findUnique().id;
+
+            Result result = callAction(
+                    controllers.routes.ref.Projects.rename(id),
+                    fakeRequest()
+                            .withSession("email", "notbob@nowhere.com")
+                            .withFormUrlEncodedBody(ImmutableMap.of("name", "New Name"))
+            );
+            assertEquals(403, status(result));
+            assertEquals("Private", Project.find.byId(id).name);
+        });
     }
 
 }
